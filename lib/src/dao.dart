@@ -1,11 +1,11 @@
 part of persist;
 
 class EntityDao<E> {
-  Query _insertQuery;
-  Query _readAllQuery;
+  String _insertQuery;
+  String _readAllQuery;
   String _readQuery;
-  Query _updateQuery;
-  Query _deleteQuery;
+  String _updateQuery;
+  String _deleteQuery;
   final EntityInfo info;
   final ConnectionPool pool;
   
@@ -15,9 +15,9 @@ class EntityDao<E> {
   Future delete(E entity) {
     var completer = new Completer();
     _buildDeleteQuery()
-      .then((_) {
-        _deleteQuery[0] = info.getPrimaryKey(entity);
-        _deleteQuery.execute().then((results) {
+      .then((query) {
+        query[0] = info.getPrimaryKey(entity);
+        query.execute().then((results) {
           // should we do something with the results?
           completer.complete();
         });
@@ -29,30 +29,27 @@ class EntityDao<E> {
     return completer.future;
   }
 
-  Future _buildDeleteQuery() {
+  Future<Query> _buildDeleteQuery() {
     var completer = new Completer();
     if (_deleteQuery == null) {
       //TODO escape the table and field names
-      var queryString = "delete from ${info.tableName} where ${info.fields[0]}=?";
-      pool.prepare(queryString)
-        .then((Query query) {
-          _deleteQuery = query;
-          completer.complete();
-        })
-        .catchError((e) {
-          completer.completeError(e);
-          return;
-        });
-    } else {
-      completer.complete();
+      _deleteQuery = "delete from ${info.tableName} where ${info.fields[0]}=?";
     }
+    pool.prepare(_deleteQuery)
+      .then((Query query) {
+        completer.complete(query);
+      })
+      .catchError((e) {
+        completer.completeError(e);
+        return;
+      });
     return completer.future;
   }
   
   Future update(E entity) {
     var completer = new Completer();
     _buildUpdateQuery()
-      .then((_) {
+      .then((query) {
         InstanceMirror mirror = reflect(entity);
         var values = new List();
         var primaryKeyValue;
@@ -65,9 +62,9 @@ class EntityDao<E> {
         });
         values.add(primaryKeyValue);
         for (var i = 0; i < values.length; i++) {
-          _updateQuery[i] = values[i];
+          query[i] = values[i];
         }
-        _updateQuery.execute()
+        query.execute()
           .then((results) {
             // should we do something with the results?
             completer.complete(1);
@@ -84,7 +81,7 @@ class EntityDao<E> {
     return completer.future;
   }
   
-  Future _buildUpdateQuery() {
+  Future<Query> _buildUpdateQuery() {
     var completer = new Completer();
     if (_updateQuery == null) {
       var fieldNameBuffer = new StringBuffer();
@@ -102,26 +99,23 @@ class EntityDao<E> {
         i++;
       });
       var fieldNames = fieldNameBuffer.toString();
-      var queryString = "update ${info.tableName} set $fieldNames where ${info.fields[0]}=?";
-      pool.prepare(queryString)
-        .then((Query query) {
-          _updateQuery = query;
-          completer.complete(null);
-        })
-        .catchError((e) {
-          completer.completeError(e);
-          return;
-        });
-    } else {
-      completer.complete(null);
+      _updateQuery = "update ${info.tableName} set $fieldNames where ${info.fields[0]}=?";
     }
+    pool.prepare(_updateQuery)
+      .then((Query query) {
+        completer.complete(query);
+      })
+      .catchError((e) {
+        completer.completeError(e);
+        return;
+      });
     return completer.future;
   }
   
   Future<num> insertNew(E entity) {
     var completer = new Completer<num>();
     _buildInsertQuery()
-      .then((_) {
+      .then((query) {
         InstanceMirror mirror = reflect(entity);
         var values = new List();
         var i = 0;
@@ -132,9 +126,9 @@ class EntityDao<E> {
           i++;
         });
         for (var i = 0; i < values.length; i++) {
-          _insertQuery[i] = values[i];
+          query[i] = values[i];
         }
-        _insertQuery.execute()
+        query.execute()
           .then((results) {
             if (info.autoInc) {
               mirror.setField(new Symbol(info.primaryKey), results.insertId);
@@ -153,7 +147,7 @@ class EntityDao<E> {
     return completer.future;
   }
   
-  Future _buildInsertQuery() {
+  Future<Query> _buildInsertQuery() {
     var completer = new Completer();
     if (_insertQuery == null) {
       var fieldNameBuffer = new StringBuffer();
@@ -172,19 +166,16 @@ class EntityDao<E> {
       });
       var fieldNames = fieldNameBuffer.toString();
       var placeholders = placeholderBuffer.toString();
-      var queryString = 'insert into ${info.tableName} ($fieldNames) values ($placeholders)';
-      pool.prepare(queryString)
-        .then((Query query) {
-          _insertQuery = query;
-          completer.complete(null);
-        })
-        .catchError((e) {
-          completer.completeError(e);
-          return;
-        });
-    } else {
-      completer.complete(null);
+      _insertQuery = 'insert into ${info.tableName} ($fieldNames) values ($placeholders)';
     }
+    pool.prepare(_insertQuery)
+      .then((Query query) {
+        completer.complete(query);
+      })
+      .catchError((e) {
+        completer.completeError(e);
+        return;
+      });
     return completer.future;
   }
   
@@ -195,13 +186,13 @@ class EntityDao<E> {
       whereString = " where ${where}";
     }
     _buildReadAllQuery(whereString)
-      .then((_) {
+      .then((query) {
         if (values != null) {
           for (var i = 0; i < values.length; i++) {
-            _readAllQuery[i] = values[i];
+            query[i] = values[i];
           }
         }
-        _readAllQuery.execute()
+        query.execute()
           .then((Results results) {
             print("got all");
             var entities = [];
@@ -239,8 +230,9 @@ class EntityDao<E> {
     return completer.future;
   }
   
-  Future _buildReadAllQuery(String where) {
+  Future<Query> _buildReadAllQuery(String where) {
     var completer = new Completer();
+    if (_readAllQuery == null) {
       var fieldNameBuffer = new StringBuffer();
       var i = 0;
       info.fields.forEach((name) {
@@ -251,16 +243,16 @@ class EntityDao<E> {
         i++;
       });
       var fieldNames = fieldNameBuffer.toString();
-      var queryString = 'select $fieldNames from ${info.tableName}$where';
-      pool.prepare(queryString)
-        .then((Query query) {
-          _readAllQuery = query;
-          completer.complete(null);
-        })
-        .catchError((e) {
-          completer.completeError(e);
-          return;
-        });
+      _readAllQuery = 'select $fieldNames from ${info.tableName}';
+    }
+    pool.prepare("$_readAllQuery$where")
+      .then((Query query) {
+        completer.complete(query);
+      })
+      .catchError((e) {
+        completer.completeError(e);
+        return;
+      });
     return completer.future;
   }
   

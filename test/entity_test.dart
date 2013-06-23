@@ -109,23 +109,23 @@ void main() {
 
   thingDao = new ThingDao(pool);
   somethingElseDao = new EntityDao<SomethingElse>(SomethingElse, pool);
-  setup(pool).then((x) {
+  setup(pool).then((_) {
     return thingDao.insertNew(thing);
-  }).then((x) {
+  }).then((_) {
     return somethingElseDao.insertNew(it1);
-  }).then((x) {
+  }).then((_) {
     return somethingElseDao.insertNew(it2);
-  }).then((x) {
+  }).then((_) {
     print("inserted");
     return thingDao.update(thing);
-  }).then((x) {
+  }).then((_) {
     print("updated");
     thing2 = thingDao.fromJson('{"userId":"jonny", "name":"Jon","age":5}');
     return thingDao.insertNew(thing2);
-  }).then((x) {
+  }).then((_) {
     print("inserted");
     return thingDao.delete(thing2);
-  }).then((x) {
+  }).then((_) {
     print("deleted");
     return thingDao.readAll();
   }).then((list) {
