@@ -52,7 +52,7 @@ class Queries {
   }
   
   buildReadWhereQuery() {
-    _readWhereQuery = "${info.fields[0]} = ?";
+    _readWhereQuery = "${info.primaryKey} = ?";
   }
   
   buildUpdateQuery() {
@@ -60,7 +60,7 @@ class Queries {
     var i = 0;
     var first = true;
     info.fields.forEach((name) {
-      if (name != info.fields[0]) {
+      if (name != info.primaryKey) {
         if (!first) {
           fieldNameBuffer.write(", ");
         }
@@ -71,11 +71,11 @@ class Queries {
       i++;
     });
     var fieldNames = fieldNameBuffer.toString();
-    _updateQuery = "update ${info.tableName} set $fieldNames where ${info.fields[0]}=?";
+    _updateQuery = "update ${info.tableName} set $fieldNames where ${info.primaryKey}=?";
   }
   
   buildDeleteQuery() {
-    _deleteQuery = "delete from ${info.tableName} where ${info.fields[0]}=?";
+    _deleteQuery = "delete from ${info.tableName} where ${info.primaryKey}=?";
   }
 
   String get insert => _insertQuery;

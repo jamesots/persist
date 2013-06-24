@@ -6,12 +6,12 @@ import 'dart:async';
 
 @Entity(table: "thing", autoInc: true)
 class Thing {
-  @Attribute(primaryKey: true)
-  String userId;
   @Attribute()
   String name;
   @Attribute(column: "number")
   int age;
+  @Attribute(primaryKey: true)
+  int userId;
   
   Thing.empty();
 }
@@ -22,7 +22,7 @@ main() {
     var queries = new Queries(info);
     
     expect(queries.insert, 'insert into thing (name, number) values (?, ?)');
-    expect(queries.readAll, 'select userId, name, number from thing');
+    expect(queries.readAll, 'select name, userId, number from thing');
     expect(queries.readWhere, 'userId = ?');
     expect(queries.update, 'update thing set name=?, number=? where userId=?');
     expect(queries.delete, 'delete from thing where userId=?');
