@@ -124,7 +124,6 @@ class EntityDao<E> {
         return query.execute();
       })
       .then((Results results) {
-        print("got all");
         var entities = [];
         results.stream.forEach((List<dynamic> row) {
           try {

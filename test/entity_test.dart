@@ -256,19 +256,19 @@ void main() {
       expect(list.length, equals(0));
       c.complete();
     });
+    return c.future;
   });
   
   test('cannot start two transactions', () {
-    var c = new Completer();
-    thingDao.startTransaction().then((_) {
+    return thingDao.startTransaction().then((_) {
       expect(() {
         thingDao.startTransaction();
       }, throws);
+      return thingDao.rollback();
     });
   });
   
   test('cannot rollback outside transaction', () {
-    var c = new Completer();
     expect(() {
       thingDao.rollback();
     }, throws);
