@@ -1,18 +1,18 @@
 part of persist;
 
 class EntityDao<E> {
-  Queries queries;
+  Queries _queries;
   final EntityInfo info;
   final ConnectionPool pool;
   
   EntityDao(Type entityType, this.pool) :
       info = new EntityInfo(entityType) {
-      queries = new Queries(info);
+      _queries = new Queries(info);
   }
   
   Future delete(E entity) {
     var completer = new Completer();
-    pool.prepare(queries.delete)
+    pool.prepare(_queries.delete)
       .then((query) {
         query[0] = info.getPrimaryKey(entity);
         query.execute().then((results) {
@@ -29,7 +29,7 @@ class EntityDao<E> {
 
   Future update(E entity) {
     var completer = new Completer();
-    pool.prepare(queries.update)
+    pool.prepare(_queries.update)
       .then((query) {
         InstanceMirror mirror = reflect(entity);
         var values = new List();
@@ -64,7 +64,7 @@ class EntityDao<E> {
   
   Future<num> insertNew(E entity) {
     var completer = new Completer<num>();
-    pool.prepare(queries.insert)
+    pool.prepare(_queries.insert)
       .then((query) {
         InstanceMirror mirror = reflect(entity);
         var values = new List();
@@ -103,7 +103,7 @@ class EntityDao<E> {
     if (where != null) {
       whereString = " where ${where}";
     }
-    pool.prepare("${queries.readAll}$whereString")
+    pool.prepare("${_queries.readAll}$whereString")
       .then((query) {
         if (values != null) {
           for (var i = 0; i < values.length; i++) {
@@ -149,7 +149,7 @@ class EntityDao<E> {
   }
   
   Future<List<E>> read(dynamic value) {
-    return readAll(queries.read, [value]);
+    return readAll(_queries.read, [value]);
   }
   
   String toJson(E entity) {
