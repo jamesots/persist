@@ -3,7 +3,7 @@ part of persist;
 class Queries {
   String _insertQuery;
   String _readAllQuery;
-  String _readQuery;
+  String _readWhereQuery;
   String _updateQuery;
   String _deleteQuery;
   
@@ -12,7 +12,7 @@ class Queries {
   Queries(this.info) {
     buildInsertQuery();
     buildReadAllQuery();
-    buildReadQuery();
+    buildReadWhereQuery();
     buildUpdateQuery();
     buildDeleteQuery();
   }
@@ -51,8 +51,8 @@ class Queries {
     _readAllQuery = 'select $fieldNames from ${info.tableName}';
   }
   
-  buildReadQuery() {
-    _readQuery = "${info.fields[0]} = ?";
+  buildReadWhereQuery() {
+    _readWhereQuery = "${info.fields[0]} = ?";
   }
   
   buildUpdateQuery() {
@@ -80,7 +80,7 @@ class Queries {
 
   String get insert => _insertQuery;
   String get readAll => _readAllQuery;
-  String get read => _readQuery;
+  String get readWhere => _readWhereQuery;
   String get update => _updateQuery;
   String get delete => _deleteQuery;
 }

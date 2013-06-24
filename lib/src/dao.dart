@@ -149,7 +149,7 @@ class EntityDao<E> {
   }
   
   Future<List<E>> read(dynamic value) {
-    return readAll(_queries.read, [value]);
+    return readAll(_queries.readWhere, [value]);
   }
   
   String toJson(E entity) {
