@@ -235,6 +235,45 @@ void main() {
     return c.future;
   });
   
+  test('transaction', () {
+    var c = new Completer();
+    thingDao.startTransaction().then((_) {
+      var thing = new Thing("bert", "Bert", 100);
+      return thingDao.insertNew(thing);
+    })
+    .then((_) {
+      var thing = new Thing("sam", "Sam", 101);
+      return thingDao.insertNew(thing);
+    })
+    .then((_) {
+      return thingDao.rollback();
+    })
+    .then((_) {
+      return pool.query("select * from thing where userId = 'bert' or userId = 'sam'");
+    }).then((result) {
+      return result.stream.toList();
+    }).then((list) {
+      expect(list.length, equals(0));
+      c.complete();
+    });
+  });
+  
+  test('cannot start two transactions', () {
+    var c = new Completer();
+    thingDao.startTransaction().then((_) {
+      expect(() {
+        thingDao.startTransaction();
+      }, throws);
+    });
+  });
+  
+  test('cannot rollback outside transaction', () {
+    var c = new Completer();
+    expect(() {
+      thingDao.rollback();
+    }, throws);
+  });
+  
   test('close', () {
     pool.close();
   });

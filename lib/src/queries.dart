@@ -10,14 +10,14 @@ class Queries {
   final EntityInfo info;
   
   Queries(this.info) {
-    buildInsertQuery();
-    buildReadAllQuery();
-    buildReadWhereQuery();
-    buildUpdateQuery();
-    buildDeleteQuery();
+    _buildInsertQuery();
+    _buildReadAllQuery();
+    _buildReadWhereQuery();
+    _buildUpdateQuery();
+    _buildDeleteQuery();
   }
   
-  buildInsertQuery() {
+  _buildInsertQuery() {
     var fieldNameBuffer = new StringBuffer();
     var placeholderBuffer = new StringBuffer();
     var i = 0;
@@ -37,7 +37,7 @@ class Queries {
     _insertQuery = 'insert into ${info.tableName} ($fieldNames) values ($placeholders)';
   }
   
-  buildReadAllQuery() {
+  _buildReadAllQuery() {
     var fieldNameBuffer = new StringBuffer();
     var i = 0;
     info.fields.forEach((name) {
@@ -51,11 +51,11 @@ class Queries {
     _readAllQuery = 'select $fieldNames from ${info.tableName}';
   }
   
-  buildReadWhereQuery() {
+  _buildReadWhereQuery() {
     _readWhereQuery = "${info.primaryKey} = ?";
   }
   
-  buildUpdateQuery() {
+  _buildUpdateQuery() {
     var fieldNameBuffer = new StringBuffer();
     var i = 0;
     var first = true;
@@ -74,7 +74,7 @@ class Queries {
     _updateQuery = "update ${info.tableName} set $fieldNames where ${info.primaryKey}=?";
   }
   
-  buildDeleteQuery() {
+  _buildDeleteQuery() {
     _deleteQuery = "delete from ${info.tableName} where ${info.primaryKey}=?";
   }
 

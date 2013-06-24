@@ -4,5 +4,5 @@ description: DB Persistence Stuff
 dependencies:
   logging: any
   options_file: any
-  sqljocky: any
+  sqljocky: '>=0.5.3'
   unittest: any
