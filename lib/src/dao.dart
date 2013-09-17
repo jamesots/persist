@@ -51,8 +51,7 @@ class EntityDao<E> {
   Future delete(E entity) {
     return _queriableConnection.prepare(_queries.delete)
       .then((query) {
-        query[0] = info.getPrimaryKey(entity);
-        return query.execute();
+        return query.execute([info.getPrimaryKey(entity)]);
       });
   }
 
@@ -70,10 +69,7 @@ class EntityDao<E> {
           }
         });
         values.add(primaryKeyValue);
-        for (var i = 0; i < values.length; i++) {
-          query[i] = values[i];
-        }
-        return query.execute();
+        return query.execute(values);
       });
   }
   
@@ -90,10 +86,7 @@ class EntityDao<E> {
           }
           i++;
         });
-        for (var i = 0; i < values.length; i++) {
-          query[i] = values[i];
-        }
-        return query.execute();
+        return query.execute(values);
       })
       .then((results) {
         if (info.autoInc) {
@@ -117,11 +110,9 @@ class EntityDao<E> {
     _queriableConnection.prepare("${_queries.readAll}$whereString")
       .then((query) {
         if (values != null) {
-          for (var i = 0; i < values.length; i++) {
-            query[i] = values[i];
-          }
+          return query.execute(values);
         }
-        return query.execute();
+        return query.execute([]);
       })
       .then((Results results) {
         var entities = [];
