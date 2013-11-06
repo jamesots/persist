@@ -1,9 +1,7 @@
 library annotations_test;
 
 import 'package:persist/persist.dart';
-import 'package:logging/logging.dart';
 import 'package:unittest/unittest.dart';
-import 'dart:async';
 
 @Entity(table: "thing", autoInc: true)
 class Thing {

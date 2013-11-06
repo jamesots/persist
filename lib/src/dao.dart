@@ -150,7 +150,7 @@ class EntityDao<E> {
   }
   
   String toJson(E entity) {
-    return stringify(toMap(entity));
+    return JSON.encode(toMap(entity));
   }
   
   Map toMap(E entity) {
@@ -164,7 +164,7 @@ class EntityDao<E> {
   }
   
   E fromJson(String json) {
-    return fromMap(parse(json));
+    return fromMap(JSON.decode(json));
   }
   
   E fromMap(Map map) {

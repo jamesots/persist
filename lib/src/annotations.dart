@@ -34,41 +34,35 @@ class EntityInfo {
     fields = [],
     classMirror = reflectClass(classType) {
     
-    for (var member in classMirror.members.values) {
-      if (member is VariableMirror) {
-        for (var metadata in member.metadata) {
-          if (metadata is InstanceMirror) {
-            if (metadata.type.qualifiedName == const Symbol("persist.Attribute")) {
-              var attribute = metadata.reflectee as Attribute;
-              
-              var fieldName = MirrorSystem.getName(member.simpleName);
-              if (attribute.column != null) {
-                fieldName = attribute.column;
-              }
-              
-              fields.add(fieldName);
-              
-              if (attribute.primaryKey) {
-                if (_primaryKey != null) {
-                  throw "Must not have more than one primary key";
-                }
-                _primaryKey = fieldName;
-              }
+    for (var member in classMirror.declarations.values.where((m) => m is VariableMirror)) {
+      for (var metadata in member.metadata.where((m) => m is InstanceMirror)) {
+        if (metadata.type.qualifiedName == const Symbol("persist.Attribute")) {
+          var attribute = metadata.reflectee as Attribute;
+          
+          var fieldName = MirrorSystem.getName(member.simpleName);
+          if (attribute.column != null) {
+            fieldName = attribute.column;
           }
+          
+          fields.add(fieldName);
+          
+          if (attribute.primaryKey) {
+            if (_primaryKey != null) {
+              throw "Must not have more than one primary key";
+            }
+            _primaryKey = fieldName;
           }
         }
       }
     }
 
     var ok = false;
-    for (var metadata in classMirror.metadata) {
-      if (metadata is InstanceMirror) {
-        if (metadata.type.qualifiedName == const Symbol("persist.Entity")) {
-          var entity = metadata.reflectee as Entity;
-          this._tableName = entity.table;
-          this._autoInc = entity.autoInc;
-          ok = true;
-        }
+    for (var metadata in classMirror.metadata.where((m) => m is InstanceMirror)) {
+      if (metadata.type.qualifiedName == const Symbol("persist.Entity")) {
+        var entity = metadata.reflectee as Entity;
+        this._tableName = entity.table;
+        this._autoInc = entity.autoInc;
+        ok = true;
       }
     }
     if (!ok) {

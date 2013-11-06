@@ -1,6 +1,6 @@
 library persist;
 
-import 'dart:json';
+import 'dart:convert';
 import 'dart:mirrors';
 import 'dart:async';
 
