@@ -113,7 +113,7 @@ void main() {
     thingDao.insertNew(thing).then((_) {
       return pool.query("select * from thing");
     }).then((result) {
-      return result.stream.toList();
+      return result.toList();
     }).then((list) {
       expect(list.length, equals(1));
       expect(list[0], equals(["James", "jamesots", 36]));
@@ -128,7 +128,7 @@ void main() {
     thingDao.update(thing).then((_) {
       return pool.query("select * from thing");
     }).then((result) {
-      return result.stream.toList();
+      return result.toList();
     }).then((list) {
       expect(list.length, equals(1));
       expect(list[0], equals(["Bill", "jamesots", 100]));
@@ -143,7 +143,7 @@ void main() {
     somethingElseDao.insertNew(it1).then((_) {
       return pool.query("select * from SomethingElse");
     }).then((result) {
-      return result.stream.toList();
+      return result.toList();
     }).then((list) {
       expect(list.length, equals(1));
       expect(list[0], equals([1, 123, 'blah']));
@@ -158,7 +158,7 @@ void main() {
     somethingElseDao.insertNew(it2).then((_) {
       return pool.query("select * from SomethingElse order by id");
     }).then((result) {
-      return result.stream.toList();
+      return result.toList();
     }).then((list) {
       expect(list.length, equals(2));
       expect(list[1], equals([2, -3, 'what?']));
@@ -173,7 +173,7 @@ void main() {
     thingDao.insertNew(thing2).then((_) {
       return pool.query("select * from thing where userId = 'jonny'");
     }).then((result) {
-      return result.stream.toList();
+      return result.toList();
     }).then((list) {
       expect(list.length, equals(1));
       expect(list[0], equals(["Jon", "jonny", 5]));
@@ -188,7 +188,7 @@ void main() {
     thingDao.delete(thing2).then((_) {
       return pool.query("select * from thing where userId = 'jonny'");
     }).then((result) {
-      return result.stream.toList();
+      return result.toList();
     }).then((list) {
       expect(list.length, equals(0));
       c.complete();
