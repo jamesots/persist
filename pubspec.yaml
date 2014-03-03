@@ -1,8 +1,8 @@
 name: persist
-version: 0.0.2
+version: 0.0.3
 description: DB Persistence Stuff
 dependencies:
   logging: any
   options_file: any
-  sqljocky: '>=0.5.3'
+  sqljocky: '>=0.9.0'
   unittest: any
