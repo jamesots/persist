@@ -251,7 +251,7 @@ void main() {
     .then((_) {
       return pool.query("select * from thing where userId = 'bert' or userId = 'sam'");
     }).then((result) {
-      return result.stream.toList();
+      return result.toList();
     }).then((list) {
       expect(list.length, equals(0));
       c.complete();
