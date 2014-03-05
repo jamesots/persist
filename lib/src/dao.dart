@@ -6,8 +6,8 @@ class EntityDao<E> {
   final ConnectionPool pool;
   QueriableConnection _queriableConnection;
   
-  EntityDao(Type entityType, this.pool) :
-      info = new EntityInfo(entityType) {
+  EntityDao(this.pool) :
+      info = new EntityInfo(E) {
       _queriableConnection = this.pool;
       _queries = new Queries(info);
   }
@@ -116,7 +116,7 @@ class EntityDao<E> {
       })
       .then((Results results) {
         var entities = [];
-        results.stream.forEach((List<dynamic> row) {
+        results.forEach((List<dynamic> row) {
           try {
             var instanceMirror = info.newInstance();
             E entity = instanceMirror.reflectee;
