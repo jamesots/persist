@@ -6,3 +6,5 @@ packages
 *.dart.js.map
 *.dart.js.deps
 connection.options
+.idea
+*.iml
