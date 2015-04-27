@@ -5,7 +5,7 @@ import 'package:unittest/unittest.dart';
 
 @Entity(table: "thing", autoInc: true)
 class Thing {
-  @Attribute(primaryKey: true)
+  @Attribute(primaryKey: true, column: 'user_id')
   String userId;
   @Attribute()
   String name;
@@ -29,7 +29,7 @@ class Bobble extends Bob {}
 class TooPrimary {
   @Attribute(primaryKey: true)
   String aField;
-  @Attribute(primaryKey: true)  
+  @Attribute(primaryKey: true)
   String anotherField;
 }
 
@@ -41,9 +41,14 @@ main() {
     expect(info.fields, hasLength(3));
     expect(info.fields, contains("userId"));
     expect(info.fields, contains("name"));
-    expect(info.fields, contains("number"));
+    expect(info.fields, contains("age"));
+    expect(info.columns, hasLength(3));
+    expect(info.columns, contains("user_id"));
+    expect(info.columns, contains("name"));
+    expect(info.columns, contains("number"));
     expect(info.autoInc, isTrue);
     expect(info.primaryKey, equals("userId"));
+    expect(info.primaryKeyColumn, equals("user_id"));
   });
   
   test('it should fail to create info for int', () {

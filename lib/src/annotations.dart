@@ -16,12 +16,15 @@ class Entity {
 
 class EntityInfo {
   String _tableName; // the table to store this entity in
-  String _primaryKey; // the primary key
+  String _primaryKey; // the primary key field name
+  String _primaryKeyColumn; // the primary key db column
   final List<String> fields; // all fields, including primary key
+  final List<String> columns; // the column names, used by the db
   final ClassMirror classMirror; // a class mirror
   bool _autoInc = false; // is the primary key auto incremented?
   
   String get primaryKey => _primaryKey;
+  String get primaryKeyColumn => _primaryKeyColumn;
   String get tableName => _tableName;
   bool get autoInc => _autoInc;
   
@@ -32,6 +35,7 @@ class EntityInfo {
    */
   EntityInfo(Type classType) :
     fields = [],
+    columns = [],
     classMirror = reflectClass(classType) {
     
     for (var member in classMirror.declarations.values.where((m) => m is VariableMirror)) {
@@ -40,17 +44,20 @@ class EntityInfo {
           var attribute = metadata.reflectee as Attribute;
           
           var fieldName = MirrorSystem.getName(member.simpleName);
+          var columnName = fieldName;
           if (attribute.column != null) {
-            fieldName = attribute.column;
+            columnName = attribute.column;
           }
           
           fields.add(fieldName);
+          columns.add(columnName);
           
           if (attribute.primaryKey) {
             if (_primaryKey != null) {
               throw "Must not have more than one primary key";
             }
             _primaryKey = fieldName;
+            _primaryKeyColumn = columnName;
           }
         }
       }

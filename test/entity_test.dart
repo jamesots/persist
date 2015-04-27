@@ -10,9 +10,9 @@ import 'dart:async';
 
 @Entity(table: "thing")
 class Thing {
-  @Attribute(primaryKey: true)
+  @Attribute(primaryKey: true, column: 'user_id')
   String userId;
-  @Attribute()
+  @Attribute(column: 'thename')
   String name;
   @Attribute()
   int age;
@@ -64,10 +64,10 @@ Future setup(ConnectionPool pool) {
   var dropper = new TableDropper(pool, ['thing', 'SomethingElse']);
   dropper.dropTables().then((_) {
     var creator = new QueryRunner(pool, ['''create table thing (
-                                                name varchar(255), 
-                                                userId varchar(255),
+                                                thename varchar(255),
+                                                user_id varchar(255),
                                                 age integer, 
-                                                primary key (userId)
+                                                primary key (user_id)
                                                 )''',
                                                 
                                                 '''create table SomethingElse (
@@ -168,7 +168,7 @@ void main() {
     var c = new Completer();
     var thing2 = thingDao.fromJson('{"userId":"jonny", "name":"Jon","age":5}');
     thingDao.insertNew(thing2).then((_) {
-      return pool.query("select * from thing where userId = 'jonny'");
+      return pool.query("select * from thing where user_id = 'jonny'");
     }).then((result) {
       return result.toList();
     }).then((list) {
@@ -183,7 +183,7 @@ void main() {
     var c = new Completer();
     var thing2 = thingDao.fromJson('{"userId":"jonny", "name":"Jon","age":5}');
     thingDao.delete(thing2).then((_) {
-      return pool.query("select * from thing where userId = 'jonny'");
+      return pool.query("select * from thing where user_id = 'jonny'");
     }).then((result) {
       return result.toList();
     }).then((list) {
@@ -246,7 +246,7 @@ void main() {
       return thingDao.rollback();
     })
     .then((_) {
-      return pool.query("select * from thing where userId = 'bert' or userId = 'sam'");
+      return pool.query("select * from thing where user_id = 'bert' or user_id = 'sam'");
     }).then((result) {
       return result.toList();
     }).then((list) {
