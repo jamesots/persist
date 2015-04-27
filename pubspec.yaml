@@ -1,5 +1,5 @@
 name: persist
-version: 0.0.3
+version: 0.0.4
 author: James Ots <code@jamesots.com>
 description: DB Persistence Stuff
 homepage: https://github.com/jamesots/persist
