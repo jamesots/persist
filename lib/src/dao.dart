@@ -55,94 +55,71 @@ class EntityDao<E> {
       });
   }
 
-  Future update(E entity) {
-    return _queriableConnection.prepare(_queries.update)
-      .then((query) {
-        InstanceMirror mirror = reflect(entity);
-        var values = new List();
-        var primaryKeyValue;
-        info.fields.forEach((name) {
-          if (name == info.primaryKey) {
-            primaryKeyValue = mirror.getField(new Symbol(name)).reflectee;
-          } else {
-            values.add(mirror.getField(new Symbol(name)).reflectee);
-          }
-        });
-        values.add(primaryKeyValue);
-        return query.execute(values);
-      });
-  }
-  
-  Future<num> insertNew(E entity) {
-    var completer = new Completer<num>();
+  Future update(E entity) async {
+    var query = await _queriableConnection.prepare(_queries.update);
     InstanceMirror mirror = reflect(entity);
-    _queriableConnection.prepare(_queries.insert)
-      .then((query) {
-        var values = new List();
-        var i = 0;
-        info.fields.forEach((name) {
-          if (!info.autoInc || name != info.primaryKey) { 
-            values.add(mirror.getField(new Symbol(name)).reflectee);
-          }
-          i++;
-        });
-        return query.execute(values);
-      })
-      .then((results) {
-        if (info.autoInc) {
-          mirror.setField(new Symbol(info.primaryKey), results.insertId);
-        }
-        completer.complete(results.insertId);
-      })
-      .catchError((e) {
-        completer.completeError(e);
-        return;
-      });
-    return completer.future;
+    var values = new List();
+    var primaryKeyValue;
+    info.fields.forEach((name) {
+      if (name == info.primaryKey) {
+        primaryKeyValue = mirror.getField(new Symbol(name)).reflectee;
+      } else {
+        values.add(mirror.getField(new Symbol(name)).reflectee);
+      }
+    });
+    values.add(primaryKeyValue);
+    return query.execute(values);
   }
   
-  Future<List<E>> readAll([String where, List values]) {
-    var completer = new Completer<List<E>>();
+  Future<num> insertNew(E entity) async {
+    InstanceMirror mirror = reflect(entity);
+    var query = await _queriableConnection.prepare(_queries.insert);
+    var values = new List();
+    info.fields.forEach((name) {
+      if (!info.autoInc || name != info.primaryKey) {
+        values.add(mirror.getField(new Symbol(name)).reflectee);
+      }
+    });
+    var results = await query.execute(values);
+    if (info.autoInc) {
+      mirror.setField(new Symbol(info.primaryKey), results.insertId);
+    }
+    return results.insertId;
+  }
+  
+  Future<List<E>> readAll([String where, List values]) async {
     String whereString = "";
     if (where != null) {
       whereString = " where ${where}";
     }
-    _queriableConnection.prepare("${_queries.readAll}$whereString")
-      .then((query) {
-        if (values != null) {
-          return query.execute(values);
-        }
-        return query.execute([]);
-      })
-      .then((Results results) {
-        var entities = [];
-        results.forEach((List<dynamic> row) {
+    var query = await _queriableConnection.prepare("${_queries.readAll}$whereString");
+    var results;
+    if (values != null) {
+      results = await query.execute(values);
+    } else {
+      results = await query.execute([]);
+    }
+    var entities = [];
+    await results.forEach((List<dynamic> row) {
+      try {
+        var instanceMirror = info.newInstance();
+        E entity = instanceMirror.reflectee;
+        entities.add(entity);
+        var i = 0;
+        info.fields.forEach((name) {
+          //TODO when this fails, system halts with no errors
           try {
-            var instanceMirror = info.newInstance();
-            E entity = instanceMirror.reflectee;
-            entities.add(entity);
-            var i = 0;
-            info.fields.forEach((name) {
-              //TODO when this fails, system halts with no errors
-              try {
-                instanceMirror.setField(new Symbol(name), row[i]);
-              } catch (e) {
-                print("Error setting field: $e");
-              }
-              i++;
-            });
+            instanceMirror.setField(new Symbol(name), row[i]);
           } catch (e) {
-            print("Error instantiating entity: $e");
+            print("Error setting field: $e");
           }
-        }).then((_) {
-          completer.complete(entities);
+          i++;
         });
-      })
-      .catchError((e) {
-        completer.completeError(e);
-        return;
-      });
-    return completer.future;
+      } catch (e) {
+        print("Error instantiating entity: $e");
+      }
+    });
+    return entities;
   }
   
   Future<List<E>> read(dynamic value) {
