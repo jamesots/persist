@@ -16,14 +16,14 @@ entities. Doesn't manage relationships or anything clever like that.
     }
     
     var pool = new ConnectionPool(...);
-    var dao = new EntityDao<Thing>(Thing, pool);
+    var dao = new EntityDao<Thing>(pool);
     
     var thing = new Thing("bob", "Bob", 25);
-    dao.insertNew(thing).then(...);
+    await dao.insertNew(thing);
     
-    var things = dao.readAll().then(...);
+    var things = await dao.readAll();
     
     thing.age = 25;
-    dao.update(thing).then(...);
+    await dao.update(thing);
     
-    dao.delete(thing).then(...);
+    await dao.delete(thing);
